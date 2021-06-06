@@ -1,36 +1,52 @@
-// import './sass/main.scss';
-// import { refs } from './js/refs'
-
-import cardImgTpl from './templapes/cardImgTpl.hbs';
+import './sass/main.scss';
+import { refs } from './js/refs';
+import cardImgTpl from './templates/cardImgTpl.hbs';
 import PixApiService from './js/apiService';
+import LoadMoreBtn from './js/onLoadButton';
+import makeNotification from './js/notifications';
+import { alert, error, success, } from '@pnotify/core';
 
-const refs = {
-  searchForm: document.querySelector('#search-form'),
-  gallery: document.querySelector('.gallery'),
-  loadMoreBtn: document.querySelector('[data-action="load-more"]'),
-};
 
+const loadMoreBtn = new LoadMoreBtn({
+  selector: '[data-action="load-more"]',
+  hidden: true,
+});
 const pixApiService = new PixApiService();
 
 refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
 
 function onSearch(evt) {
   evt.preventDefault();
 
   if (evt.currentTarget.elements.query.value.trim() === '') {
-    return;
+    return makeNotification(alert, 'Warning', 'Empty request');
   }
 
   pixApiService.query = evt.currentTarget.elements.query.value.trim();
   pixApiService.resetPage();
-  pixApiService.fetchArticles().then(appendCardMarkup);
+
+  pixApiService.fetchArticles().then(items => {
+    clearContainer(refs.gallery);
+    
+    if (items.length === 0) {
+      return makeNotification(error, 'SORRY', 'Pictures not found');
+    }
+    makeNotification(success, 'Success', 'Some pictures was found');
+    appendItemsMarkup(refs.gallery, cardImgTpl, items);
+  });
 }
 
 function onLoadMore() {
-  pixApiService.fetchArticles().then(appendCardMarkup);
+  pixApiService.fetchArticles().then(items => {
+    appendItemsMarkup(refs.gallery, cardImgTpl, items);
+  });
 }
 
-function appendCardMarkup(hits) {
-  refs.gallery.insertAdjacentHTML('beforeend', cardImgTpl(hits));
+function appendItemsMarkup(container, template, items) {
+  container.insertAdjacentHTML('beforeend', template(items));
+}
+
+function clearContainer(container) {
+  container.innerHTML = '';
 }

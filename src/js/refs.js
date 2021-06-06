@@ -1,5 +1,4 @@
 export const refs = {
-    searchForm: document.querySelector('#search-form'),
-    gallery: document.querySelector('.gallery'),
-    loadMoreBtn: document.querySelector('[data-action="load-more"]'),
+    searchForm: document.querySelector('.js-search-form'),
+    gallery: document.querySelector('.js-gallery'),
   };

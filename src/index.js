@@ -4,13 +4,13 @@ import cardImgTpl from './templates/cardImgTpl.hbs';
 import PixApiService from './js/apiService';
 import LoadMoreBtn from './js/onLoadButton';
 import makeNotification from './js/notifications';
-import { alert, error, success, } from '@pnotify/core';
-
+import { alert, error, success } from '@pnotify/core';
 
 const loadMoreBtn = new LoadMoreBtn({
   selector: '[data-action="load-more"]',
   hidden: true,
 });
+
 const pixApiService = new PixApiService();
 
 refs.searchForm.addEventListener('submit', onSearch);
@@ -24,22 +24,32 @@ function onSearch(evt) {
   }
 
   pixApiService.query = evt.currentTarget.elements.query.value.trim();
+
+  loadMoreBtn.show();
+  loadMoreBtn.disable();
+
   pixApiService.resetPage();
 
   pixApiService.fetchArticles().then(items => {
     clearContainer(refs.gallery);
-    
+
     if (items.length === 0) {
       return makeNotification(error, 'SORRY', 'Pictures not found');
     }
+    
     makeNotification(success, 'Success', 'Some pictures was found');
     appendItemsMarkup(refs.gallery, cardImgTpl, items);
+
+    loadMoreBtn.enable();
   });
 }
 
 function onLoadMore() {
+  loadMoreBtn.disable();
+
   pixApiService.fetchArticles().then(items => {
     appendItemsMarkup(refs.gallery, cardImgTpl, items);
+    loadMoreBtn.enable();
   });
 }
 

@@ -5,6 +5,11 @@ import PixApiService from './js/apiService';
 import LoadMoreBtn from './js/onLoadButton';
 import makeNotification from './js/notifications';
 import { alert, error, success } from '@pnotify/core';
+import trackScroll from './js/trackScroll';
+import backToTop from './js/backToTop';
+
+window.addEventListener('scroll', trackScroll);
+refs.goTopBtn.addEventListener('click', backToTop);
 
 const loadMoreBtn = new LoadMoreBtn({
   selector: '[data-action="load-more"]',
@@ -36,7 +41,7 @@ function onSearch(evt) {
     if (items.length === 0) {
       return makeNotification(error, 'SORRY', 'Pictures not found');
     }
-    
+
     makeNotification(success, 'Success', 'Some pictures was found');
     appendItemsMarkup(refs.gallery, cardImgTpl, items);
 
@@ -50,6 +55,11 @@ function onLoadMore() {
   pixApiService.fetchArticles().then(items => {
     appendItemsMarkup(refs.gallery, cardImgTpl, items);
     loadMoreBtn.enable();
+
+    refs.gallery.scrollIntoView({
+      block: 'end',
+      behavior: 'smooth',
+    });
   });
 }
 

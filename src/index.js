@@ -39,6 +39,7 @@ function onSearch(evt) {
     clearContainer(refs.gallery);
 
     if (items.length === 0) {
+      loadMoreBtn.enable();
       return makeNotification(error, 'SORRY', 'Pictures not found');
     }
 
